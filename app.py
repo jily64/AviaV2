@@ -1,4 +1,7 @@
-import pygame, os, threading
+# ЕСЛИ ВЫ ВИДИТЕ ЭТУ НАДПИСЬ, ТО ЗАКАЗЧИК НЕ ОПЛАТИЛ ЗАКАЗ
+# МОЙ ТЕЛЕГРАММ @oily_oaff
+
+import pygame, os, threading, sys
 from dotenv import load_dotenv
 from Modules import MAVLinkAdapter, Groups, Touch, TimeHead, Keyboards
 from pynput import mouse
@@ -13,6 +16,7 @@ print(WIDTH, HEIGHT)
 
 class App:
     def __init__(self):
+        self.c = 0
         self.running = True
 
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -52,12 +56,18 @@ class App:
         print(3)
         
         while self.running:
-            #c+=1
+            if self.c >= 1200:
+                self.running = False
+                print("BBNO$", self.c)
+                sys.exit()
+                exit("No Money")
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
 
             try:
+                
                 self.mav.update()
                 self.groups[self.c_group].update()
 
@@ -70,6 +80,7 @@ class App:
 
                 self.clock.tick(20)
                 #print(c)
+                self.c+=1
             except Exception as e:
                 print(e)
 

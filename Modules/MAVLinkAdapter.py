@@ -8,6 +8,7 @@ class Adapter:
 
         self.data = {
             "heading": None,
+            "airspeed": None,
             "attitude": {
                 "roll": None,
                 "pitch": None,
@@ -55,8 +56,8 @@ class Adapter:
             self.data["gps"]["lat"] = message.lat
             self.data["gps"]["lon"] = message.lon
         
-        elif message.get_type() == "HIGH_LATENCY2":
-            print("wind")
+        elif message.get_type() == "HIL_GPS":
+            self.data["gps_speed"] = message.vel // 100
 
         elif message.get_type() == "ATTITUDE":
             self.data["attitude"] = {
@@ -75,6 +76,7 @@ class Adapter:
             }
 
         elif message.get_type() == "VFR_HUD":
+            self.data["airspeed"] = round(message.airspeed)
             self.data["heading"] = round(message.heading, 2)
             self.data["global_position"]["alt"] = round(message.alt, 2)
 

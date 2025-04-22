@@ -54,10 +54,10 @@ class Main:
 
         # Arrows
 
-        self.arrow_sprite_middle = pygame.transform.flip(pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "arrow.png"), (360, 220)), True, False)
+        self.arrow_sprite_middle = pygame.transform.flip(pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "arrow.png"), (360, 210)), True, False)
         self.arrow_sprite_small = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "arrow.png"), (200, 100))
 
-        self.box_sprite_small = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "box.png"), (220, 130))
+        self.box_sprite_small = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "box.png"), (220, 150))
         self.box_sprite_big = pygame.transform.scale(self.box_sprite_small, (750, 450))
         
 
@@ -65,13 +65,16 @@ class Main:
         self.alt_rect.center = (250, HEIGHT//2)
 
         self.speed_rect = self.arrow_sprite_middle.get_rect()
-        self.speed_rect.center = (WIDTH-400, HEIGHT//2)
+        self.speed_rect.center = (WIDTH-400, HEIGHT//2-110)
+
+        self.gps_rect = self.arrow_sprite_middle.get_rect()
+        self.gps_rect.center = (WIDTH-400, HEIGHT//2+110)
 
         self.speed_rect_vz = self.arrow_sprite_small.get_rect()
         self.speed_rect_vz.center = (WIDTH-120, HEIGHT//2)
 
         self.heading_rect = self.box_sprite_small.get_rect()
-        self.heading_rect.center = (WIDTH//2, 65)
+        self.heading_rect.center = (WIDTH//2, 75)
 
         self.minus_rect = self.box_sprite_big.get_rect(center=(WIDTH//2, HEIGHT-250))
         self.minus_text = self.font_big.render("-", False, (255, 255, 255))
@@ -100,9 +103,10 @@ class Main:
         self.wind_rect = self.wind_button.get_rect(center=(502, HEIGHT-75))
         self.wind_text_rect = self.wind_text.get_rect(center=(502, HEIGHT-75))
 
-        self.app.touchable.add_rect("to-page-main", self.to_page_rect, "main", self.to_page_callback)
-        self.app.touchable.add_rect("scale-main", self.scale_rect, "main", self.scale_callback)
-        self.app.touchable.add_rect("wind-main", self.wind_rect, "main", self.wind_dir_callback)
+        self.num_button = pygame.transform.scale(self.box_sprite_small, (700, 150))
+        self.num_text = self.font_middle.render("N0 123 0:0", False, (255, 255, 255))
+        self.num_rect = self.num_button.get_rect(center=(350, 75))
+        self.num_text_rect = self.num_text.get_rect(center=(350, 75))
 
         # Time 
         self.time = datetime.now(timezone.utc).strftime("%H:%M:%S")
@@ -167,27 +171,10 @@ class Main:
             self.is_pr_updated = True
 
         self.pressure = self.data["pressure"]["abs_pressure"]
-        self.alt = Func.calculate_height_from_pressure(self.default_pressure, self.pressure + self.cfg["pressure_diff"])
-        self.speed = Func.count_speed_module(self.data["global_position"]["vx"], self.data["global_position"]["vy"])
+        self.alt = round(Func.calculate_height_from_pressure(self.default_pressure, self.pressure + self.cfg["pressure_diff"]))
+        self.speed = round(self.data["airspeed"] * 3.6)
         self.speed_vz = round(self.data["global_position"]["vz"], 2)
         self.heading = self.data["heading"]
-        
-
-        delta_alt = round(self.alt, -1)
-        self.alt_comp = []
-        for i in range(7):
-            self.alt_comp.append(delta_alt + 10*(i-3))
-        
-        self.alt_pad_delt = round(self.alt - delta_alt)*23
-        self.alt_comp.reverse()
-        
-        delta_speed = round(self.speed, -1)
-        self.speed_comp = []
-        for i in range(7):
-            self.speed_comp.append(delta_speed + 10*(i-3))
-        
-        self.speed_pad_delt = round(self.speed - delta_speed)*23
-        self.speed_comp.reverse()
 
         delta_speed_vz = round(self.speed_vz, -1)
         self.speed_vz_comp = []
@@ -212,10 +199,10 @@ class Main:
         self.red_sprite_current = pygame.transform.rotate(self.red_sprite, (self.heading-self.app.t_h.headings[self.app.t_h.active_zone]+90)%360)
         self.red_rect = self.red_sprite_current.get_rect(center=self.red_rect.center)
 
-        self.green_sprite_current = pygame.transform.rotate(self.green_sprite, self.heading-self.to_home+90)
+        self.green_sprite_current = pygame.transform.rotate(self.green_sprite, self.heading-self.to_home)
         self.green_rect = self.green_sprite_current.get_rect(center=self.green_rect.center)
 
-        self.yellow_sprite_current = pygame.transform.rotate(self.yellow_sprite, self.heading-self.wind_direction+90)
+        self.yellow_sprite_current = pygame.transform.rotate(self.yellow_sprite, self.heading-self.wind_direction)
         self.yellow_rect = self.yellow_sprite_current.get_rect(center=self.yellow_rect.center)
 
 
@@ -236,19 +223,6 @@ class Main:
         pygame.draw.line(self.screen, (235, 0, 0), self.left_body[0], self.left_body[1], self.left_body[2])
         pygame.draw.line(self.screen, (235, 0, 0), self.right_body[0], self.right_body[1], self.right_body[2])
 
-        for i in range(len(self.alt_comp)):
-            if self.alt_comp[i] == None or self.alt_comp[i] < 0:
-                continue
-
-            text = self.font_middle.render(str(self.alt_comp[i]), False, (255, 255, 255))
-            self.screen.blit(text, text.get_rect(center=(200, self.alt_pad_delt+self.alt_y_pad+(i-3)*230+HEIGHT//2)))
-
-        for i in range(len(self.speed_comp)):
-            if self.speed_comp[i] == None or self.speed_comp[i] < 0:
-                continue
-
-            text = self.font_middle.render(str(self.speed_comp[i]), False, (255, 255, 255))
-            self.screen.blit(text, text.get_rect(center=(WIDTH-375, self.speed_pad_delt+(i-3)*230+HEIGHT//2)))
         for i in range(len(self.speed_vz_comp)):
             if self.speed_vz_comp[i] == None:
                 continue
@@ -258,6 +232,7 @@ class Main:
 
         self.screen.blit(self.arrow_sprite_middle, self.alt_rect)
         self.screen.blit(pygame.transform.flip(self.arrow_sprite_middle, True, False), self.speed_rect)
+        self.screen.blit(pygame.transform.flip(self.arrow_sprite_middle, True, False), self.gps_rect)
         self.screen.blit(self.arrow_sprite_small, self.speed_rect_vz)
 
         self.screen.blit(self.box_sprite_small, self.heading_rect)
@@ -266,13 +241,16 @@ class Main:
         self.screen.blit(text, text.get_rect(center=(200, HEIGHT//2)))
 
         text = self.font_middle.render(str(self.speed), False, (255, 255, 255))
-        self.screen.blit(text, text.get_rect(center=(WIDTH-375, HEIGHT//2)))
+        self.screen.blit(text, text.get_rect(center=(WIDTH-375, HEIGHT//2-110)))
+
+        text = self.font_middle.render(str(self.speed), False, (255, 255, 255))
+        self.screen.blit(text, text.get_rect(center=(WIDTH-375, HEIGHT//2+110)))
 
         text = self.font_small.render(str(self.speed_vz), False, (255, 255, 255))
         self.screen.blit(text, text.get_rect(center=(WIDTH-100, HEIGHT//2)))
 
         text = self.font_middle.render(str(self.heading), False, (255, 255, 255))
-        self.screen.blit(text, text.get_rect(center=(WIDTH//2, 65)))
+        self.screen.blit(text, text.get_rect(center=(WIDTH//2, 75)))
             
         self.screen.blit(self.to_page_button, self.to_page_rect)
         self.screen.blit(self.to_page_text, self.to_page_text_rect)
@@ -282,6 +260,9 @@ class Main:
 
         self.screen.blit(self.wind_button, self.wind_rect)
         self.screen.blit(self.wind_text, self.wind_text_rect)
+
+        self.screen.blit(self.num_button, self.num_rect)
+        self.screen.blit(self.num_text, self.num_text_rect)
 
         text = self.font_middle.render(str(self.time) + " (UTC)", True, (255, 255, 255))
         self.screen.blit(text, text.get_rect(center=(WIDTH//2, HEIGHT-50)))

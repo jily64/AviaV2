@@ -22,11 +22,9 @@ def count_speed_module(vx, vy):
 
 
 def calculate_height_from_pressure(P_ground, P_height, T=288.15, L=0.0065, R=8.31447, g=9.80665, M=0.0289644):
-    # Преобразуем давление из гПа в Па
     P_ground = P_ground * 100
     P_height = P_height * 100
     
-    # Вычисляем высоту по барометрической формуле
     exponent = (R * L) / (g * M)
     height = (T / L) * (1 - (P_height / P_ground) ** exponent)
     
