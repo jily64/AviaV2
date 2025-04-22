@@ -1,0 +1,6 @@
+pymavlink
+pygame
+pynput
+dotenv
+numpy
+datetime

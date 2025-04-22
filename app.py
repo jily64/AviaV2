@@ -1,4 +1,4 @@
-import pygame, os, threading, time, asyncio
+import pygame, os, threading
 from dotenv import load_dotenv
 from Modules import MAVLinkAdapter, Groups, Touch, TimeHead, Keyboards
 from pynput import mouse
