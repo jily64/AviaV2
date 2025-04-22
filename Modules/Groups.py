@@ -256,7 +256,7 @@ class Main:
 
         self.screen.blit(self.box_sprite_small, self.heading_rect)
 
-        text = self.font_middle.render(str(self.alt), False, (255, 255, 255))
+        text = self.font_middle.render(str(self.alt)+ "", False, (255, 255, 255))
         self.screen.blit(text, text.get_rect(center=(200, HEIGHT//2)))
 
         text = self.font_middle.render(str(self.speed), False, (255, 255, 255))
@@ -312,13 +312,16 @@ class Main:
         self.app.change_group("head_menu")
 
     def plus_callback(self):
-        self.cfg["pressure_diff"] += 0.05
-        self.save_cfg()
+        if self.is_opened:
+            self.cfg["pressure_diff"] += 0.05
+            self.cfg["pressure_diff"] = round(self.cfg["pressure_diff"], 2)
+            self.save_cfg()
 
     def minus_callback(self):
-        self.cfg["pressure_diff"] -= 0.05
-        self.cfg["pressure_diff"] = round(self.cfg["pressure_diff"], 2)
-        self.save_cfg()
+        if self.is_opened:
+            self.cfg["pressure_diff"] -= 0.05
+            self.cfg["pressure_diff"] = round(self.cfg["pressure_diff"], 2)
+            self.save_cfg()
 
     def scale_callback(self):
         self.is_opened = not self.is_opened
