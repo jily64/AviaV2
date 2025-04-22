@@ -1,0 +1,10 @@
+{
+    "pressure_diff": 0.55,
+    "roll_axis": "roll",
+    "pitch_axis": "pitch",
+    "roll_diff": 0,
+    "pitch_diff": 0,
+    "params": {
+        "connection": "udp:0.0.0.0:14550"
+    }
+}
