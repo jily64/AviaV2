@@ -48,6 +48,8 @@ class Main:
 
         self.wind_direction = 0
 
+        self.indicate_heading = [(WIDTH//2, 165), (WIDTH//2, 265), 7]
+
         # Graphics
         self.font_big = pygame.font.Font(None, 350)
         self.font_middle = pygame.font.Font(None, 125)
@@ -58,7 +60,7 @@ class Main:
         self.arrow_sprite_middle = pygame.transform.flip(pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "arrow.png"), (360, 210)), True, False)
         self.arrow_sprite_small = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "arrow.png"), (200, 100))
 
-        self.box_sprite_small = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "box.png"), (220, 150))
+        self.box_sprite_small = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "box.png"), (250, 150))
         self.box_sprite_big = pygame.transform.scale(self.box_sprite_small, (750, 450))
         
 
@@ -225,9 +227,8 @@ class Main:
             minutes = round(time.total_seconds()) // 60 % 60
             str_time = f"{hours}:{"0"*(len(str(minutes))%2)}{minutes}"
 
-
-
         self.screen.blit(self.horizon_sprite_current, self.horizon_rect)
+        pygame.draw.line(self.screen, (235, 235, 0), self.indicate_heading[0], self.indicate_heading[1], self.indicate_heading[2])
         self.screen.blit(self.compass_sprite_current, self.compass_rect)
 
         if self.app.t_h.is_active:
@@ -268,7 +269,7 @@ class Main:
         text = self.font_small.render(str(self.speed_vz), False, (255, 255, 255))
         self.screen.blit(text, text.get_rect(center=(WIDTH-100, HEIGHT//2)))
 
-        text = self.font_middle.render(str(self.heading), False, (255, 255, 255))
+        text = self.font_middle.render(str(self.heading)+"°", False, (255, 255, 255))
         self.screen.blit(text, text.get_rect(center=(WIDTH//2, 75)))
             
         self.screen.blit(self.to_page_button, self.to_page_rect)
@@ -282,7 +283,7 @@ class Main:
 
         self.screen.blit(self.num_button, self.num_rect)
 
-        self.num_text = self.font_middle.render(f"N{self.app.t_h.active_zone+1} {self.app.t_h.headings[self.app.t_h.active_zone]} {str_time}", False, (255, 255, 255))
+        self.num_text = self.font_middle.render(f"N{self.app.t_h.active_zone+1} {self.app.t_h.headings[self.app.t_h.active_zone]}° {str_time}", False, (255, 255, 255))
         self.num_text_rect = self.num_text.get_rect(center=(350, 75))
         self.screen.blit(self.num_text, self.num_text_rect)
 

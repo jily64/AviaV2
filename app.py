@@ -78,7 +78,7 @@ class App:
 
                 pygame.display.flip()
 
-                self.clock.tick(20)
+                self.clock.tick(10)
                 #print(c)
                 self.c+=1
             except Exception as e:
