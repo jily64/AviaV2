@@ -26,6 +26,7 @@ class Main:
         self.alt = 0
         self.speed = 0
         self.heading = 0
+        self.airspeed = 0
 
         self.alt_comp = [0, 0, 0, 0]
         self.alt_pad_delt = 0
@@ -108,6 +109,11 @@ class Main:
         self.num_rect = self.num_button.get_rect(center=(350, 75))
         self.num_text_rect = self.num_text.get_rect(center=(350, 75))
 
+        self.app.touchable.add_rect("page-main", self.to_page_rect, "main", self.to_page_callback)
+        self.app.touchable.add_rect("scale-main", self.scale_rect, "main", self.scale_callback)
+        self.app.touchable.add_rect("wind-main", self.wind_rect, "main", self.wind_dir_callback)
+
+
         # Time 
         self.time = datetime.now(timezone.utc).strftime("%H:%M:%S")
 
@@ -155,7 +161,7 @@ class Main:
 
 
     def update(self):
-        self.debug_c += 1
+        #self.debug_c += 1
 
         self.data = self.app.mav.data
         
@@ -173,6 +179,7 @@ class Main:
         self.pressure = self.data["pressure"]["abs_pressure"]
         self.alt = round(Func.calculate_height_from_pressure(self.default_pressure, self.pressure + self.cfg["pressure_diff"]))
         self.speed = round(self.data["airspeed"] * 3.6)
+        self.airspeed = round(Func.count_speed_module(self.data["global_position"]["vx"], self.data["global_position"]["vy"])*3.6)
         self.speed_vz = round(self.data["global_position"]["vz"], 2)
         self.heading = self.data["heading"]
 
@@ -208,6 +215,18 @@ class Main:
 
 
     def render(self):
+        str_time = "0:00"
+        if self.app.t_h.is_active:
+            time = self.app.t_h.temp_zones[self.app.t_h.active_zone]
+            new_time = datetime.now()
+            time = time - new_time
+
+            hours = round(time.total_seconds()) // 3600
+            minutes = round(time.total_seconds()) // 60 % 60
+            str_time = f"{hours}:{"0"*(len(str(minutes))%2)}{minutes}"
+
+
+
         self.screen.blit(self.horizon_sprite_current, self.horizon_rect)
         self.screen.blit(self.compass_sprite_current, self.compass_rect)
 
@@ -243,7 +262,7 @@ class Main:
         text = self.font_middle.render(str(self.speed), False, (255, 255, 255))
         self.screen.blit(text, text.get_rect(center=(WIDTH-375, HEIGHT//2-110)))
 
-        text = self.font_middle.render(str(self.speed), False, (255, 255, 255))
+        text = self.font_middle.render(str(self.airspeed)+" G", False, (255, 255, 255))
         self.screen.blit(text, text.get_rect(center=(WIDTH-375, HEIGHT//2+110)))
 
         text = self.font_small.render(str(self.speed_vz), False, (255, 255, 255))
@@ -262,6 +281,9 @@ class Main:
         self.screen.blit(self.wind_text, self.wind_text_rect)
 
         self.screen.blit(self.num_button, self.num_rect)
+
+        self.num_text = self.font_middle.render(f"N{self.app.t_h.active_zone+1} {self.app.t_h.headings[self.app.t_h.active_zone]} {str_time}", False, (255, 255, 255))
+        self.num_text_rect = self.num_text.get_rect(center=(350, 75))
         self.screen.blit(self.num_text, self.num_text_rect)
 
         text = self.font_middle.render(str(self.time) + " (UTC)", True, (255, 255, 255))
