@@ -73,8 +73,7 @@ class App:
             except Exception as e:
                 print(e)
 
-                    
-
+                
         pygame.quit()
     
     def change_group(self, group):

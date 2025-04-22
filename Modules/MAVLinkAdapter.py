@@ -54,6 +54,9 @@ class Adapter:
             #print(self.data["gps"])
             self.data["gps"]["lat"] = message.lat
             self.data["gps"]["lon"] = message.lon
+        
+        elif message.get_type() == "HIGH_LATENCY2":
+            print("wind")
 
         elif message.get_type() == "ATTITUDE":
             self.data["attitude"] = {
