@@ -273,6 +273,14 @@ class Main:
         self.screen.blit(self.wind_text, self.wind_text_rect)
 
         if self.app.t_h.is_active:
+            time = self.app.t_h.temp_zones[self.app.t_h.active_zone]
+            new_time = datetime.now()
+            time = time - new_time
+
+            hours = round(time.total_seconds()) // 3600
+            minutes = round(time.total_seconds()) // 60 % 60
+            str_time = f"{hours}:{"0"*(len(str(minutes))%2)}{minutes}"
+
             self.screen.blit(self.num_button, self.num_rect)
             self.num_text = self.font_middle.render(f"N{self.app.t_h.active_zone+1} {self.app.t_h.headings[self.app.t_h.active_zone]}° {str_time}", False, (255, 255, 255))
             self.num_text_rect = self.num_text.get_rect(center=(350, 75))
