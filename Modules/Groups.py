@@ -55,10 +55,13 @@ class Main:
         self.font_middle = pygame.font.Font(None, 125)
         self.font_small = pygame.font.Font(None, 50)
 
+        self.font_middle_small = pygame.font.Font(None, 95)
+        self.font_small_middle = pygame.font.Font(None, 75)
+
         # Arrows
 
-        self.arrow_sprite_middle = pygame.transform.flip(pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "arrow.png"), (360, 210)), True, False)
-        self.arrow_sprite_small = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "arrow.png"), (200, 100))
+        self.arrow_sprite_middle = pygame.transform.flip(pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "arrow.png"), (345, 230)), True, False)
+        self.arrow_sprite_small = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "arrow.png"), (185, 100))
 
         self.box_sprite_small = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "box.png"), (250, 150))
         self.box_sprite_big = pygame.transform.scale(self.box_sprite_small, (750, 450))
@@ -68,10 +71,7 @@ class Main:
         self.alt_rect.center = (250, HEIGHT//2)
 
         self.speed_rect = self.arrow_sprite_middle.get_rect()
-        self.speed_rect.center = (WIDTH-400, HEIGHT//2-110)
-
-        self.gps_rect = self.arrow_sprite_middle.get_rect()
-        self.gps_rect.center = (WIDTH-400, HEIGHT//2+110)
+        self.speed_rect.center = (WIDTH-400, HEIGHT//2)
 
         self.speed_rect_vz = self.arrow_sprite_small.get_rect()
         self.speed_rect_vz.center = (WIDTH-120, HEIGHT//2)
@@ -107,7 +107,7 @@ class Main:
         self.wind_text_rect = self.wind_text.get_rect(center=(502, HEIGHT-75))
 
         self.num_button = pygame.transform.scale(self.box_sprite_small, (700, 150))
-        self.num_text = self.font_middle.render("N0 123 0:0", False, (255, 255, 255))
+        self.num_text = self.font_middle.render("N0 000 0:0", False, (255, 255, 255))
         self.num_rect = self.num_button.get_rect(center=(350, 75))
         self.num_text_rect = self.num_text.get_rect(center=(350, 75))
 
@@ -180,8 +180,8 @@ class Main:
 
         self.pressure = self.data["pressure"]["abs_pressure"]
         self.alt = round(Func.calculate_height_from_pressure(self.default_pressure, self.pressure + self.cfg["pressure_diff"]))
-        self.speed = round(self.data["airspeed"] * 3.6)
-        self.airspeed = round(Func.count_speed_module(self.data["global_position"]["vx"], self.data["global_position"]["vy"])*3.6)
+        self.speed = round(self.data["airspeed"] * 3.6) + 2000
+        self.airspeed = round(Func.count_speed_module(self.data["global_position"]["vx"], self.data["global_position"]["vy"])*3.6) + 2000
         self.speed_vz = round(self.data["global_position"]["vz"], 2)
         self.heading = self.data["heading"]
 
@@ -217,16 +217,6 @@ class Main:
 
 
     def render(self):
-        str_time = "0:00"
-        if self.app.t_h.is_active:
-            time = self.app.t_h.temp_zones[self.app.t_h.active_zone]
-            new_time = datetime.now()
-            time = time - new_time
-
-            hours = round(time.total_seconds()) // 3600
-            minutes = round(time.total_seconds()) // 60 % 60
-            str_time = f"{hours}:{"0"*(len(str(minutes))%2)}{minutes}"
-
         self.screen.blit(self.horizon_sprite_current, self.horizon_rect)
         pygame.draw.line(self.screen, (235, 235, 0), self.indicate_heading[0], self.indicate_heading[1], self.indicate_heading[2])
         self.screen.blit(self.compass_sprite_current, self.compass_rect)
@@ -252,19 +242,20 @@ class Main:
 
         self.screen.blit(self.arrow_sprite_middle, self.alt_rect)
         self.screen.blit(pygame.transform.flip(self.arrow_sprite_middle, True, False), self.speed_rect)
-        self.screen.blit(pygame.transform.flip(self.arrow_sprite_middle, True, False), self.gps_rect)
         self.screen.blit(self.arrow_sprite_small, self.speed_rect_vz)
 
         self.screen.blit(self.box_sprite_small, self.heading_rect)
 
         text = self.font_middle.render(str(self.alt)+ "", False, (255, 255, 255))
-        self.screen.blit(text, text.get_rect(center=(200, HEIGHT//2)))
+        self.screen.blit(text, text.get_rect(center=(WIDTH-375, HEIGHT//2)))
 
-        text = self.font_middle.render(str(self.speed), False, (255, 255, 255))
-        self.screen.blit(text, text.get_rect(center=(WIDTH-375, HEIGHT//2-110)))
+        text = self.font_middle_small.render("AS "+str(self.speed), False, (255, 255, 255))
+        self.screen.blit(text, text.get_rect(center=(225, HEIGHT//2-45)))
 
-        text = self.font_middle.render(str(self.airspeed)+" G", False, (255, 255, 255))
-        self.screen.blit(text, text.get_rect(center=(WIDTH-375, HEIGHT//2+110)))
+        pygame.draw.line(self.screen, (255, 255, 255), (150, HEIGHT//2), (300, HEIGHT//2), 5)
+
+        text = self.font_small_middle.render("GS " + str(self.airspeed), False, (255, 255, 255))
+        self.screen.blit(text, text.get_rect(center=(225, HEIGHT//2+45)))
 
         text = self.font_small.render(str(self.speed_vz), False, (255, 255, 255))
         self.screen.blit(text, text.get_rect(center=(WIDTH-100, HEIGHT//2)))
@@ -281,17 +272,25 @@ class Main:
         self.screen.blit(self.wind_button, self.wind_rect)
         self.screen.blit(self.wind_text, self.wind_text_rect)
 
-        self.screen.blit(self.num_button, self.num_rect)
-
-        self.num_text = self.font_middle.render(f"N{self.app.t_h.active_zone+1} {self.app.t_h.headings[self.app.t_h.active_zone]}° {str_time}", False, (255, 255, 255))
-        self.num_text_rect = self.num_text.get_rect(center=(350, 75))
-        self.screen.blit(self.num_text, self.num_text_rect)
+        if self.app.t_h.is_active:
+            self.screen.blit(self.num_button, self.num_rect)
+            self.num_text = self.font_middle.render(f"N{self.app.t_h.active_zone+1} {self.app.t_h.headings[self.app.t_h.active_zone]}° {str_time}", False, (255, 255, 255))
+            self.num_text_rect = self.num_text.get_rect(center=(350, 75))
+            self.screen.blit(self.num_text, self.num_text_rect)
 
         text = self.font_middle.render(str(self.time) + " (UTC)", True, (255, 255, 255))
         self.screen.blit(text, text.get_rect(center=(WIDTH//2, HEIGHT-50)))
 
 
         if self.is_opened:
+            time = self.app.t_h.temp_zones[self.app.t_h.active_zone]
+            new_time = datetime.now()
+            time = time - new_time
+
+            hours = round(time.total_seconds()) // 3600
+            minutes = round(time.total_seconds()) // 60 % 60
+            str_time = f"{hours}:{"0"*(len(str(minutes))%2)}{minutes}"
+
             self.screen.blit(self.box_sprite_big, self.minus_rect)
             self.screen.blit(self.box_sprite_big, self.plus_rect)
 
