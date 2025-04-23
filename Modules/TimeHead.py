@@ -1,4 +1,4 @@
-import datetime
+import datetime, json
 
 class TimeHead:
     def __init__(self, app):
@@ -15,6 +15,8 @@ class TimeHead:
         self.free_zone = datetime.timedelta()
 
         self.__compile_zones()
+        
+        self.load()
 
     def __compile_zones(self):
         self.zones = []
@@ -77,6 +79,7 @@ class TimeHead:
         
         self.zones[id] = datetime.timedelta(minutes=minutes, hours=hours)
         print(self.zones[id], "after")
+        self.save()
 
     def set_heading(self, id, value):
         try:
@@ -85,6 +88,44 @@ class TimeHead:
         except Exception as e:
             print(e)
 
+        self.save()
+
     def renew(self):
         self.__compile_zones()
         self.is_active = False
+        self.save()
+
+    def load(self):
+        with open("heads.json", "r", encoding="UTF-8") as f:
+            data = json.load(f)
+
+        if data["zones"] == []:
+            for i in self.zones:
+                data["zones"].append(i.total_seconds)
+        else:
+            self.zones = []
+            for i in data["zones"]:
+                self.zones.append(datetime.timedelta(seconds=i))
+
+        if data["heads"] == []:
+            for i in self.headings:
+                data["heads"].append(0)
+        else:
+            self.headings = []
+            for i in data["heads"] :
+                self.headings.append(i)
+
+    def save(self):
+        data = {
+            "zones": [],
+            "heads": []
+        }
+
+        for i in range(len(self.zones)):
+            data["zones"].append(self.zones[i].total_seconds())
+            data["heads"].append(self.headings[i])
+
+        with open("heads.json", "w", encoding="UTF-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+
+

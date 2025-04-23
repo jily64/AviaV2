@@ -578,6 +578,8 @@ class HeadingPlanner:
         self.current_pad = None
 
     def confirm_heading(self, value):
+        if value == ":" or value == "":
+            value = "0"
         value = int(value.split(":")[0])%360
         self.app.t_h.set_heading(int("".join(self.current_pad.split("m")))-1+5*self.page, value)
         print(value)
