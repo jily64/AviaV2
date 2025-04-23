@@ -313,13 +313,13 @@ class Main:
 
     def plus_callback(self):
         if self.is_opened:
-            self.cfg["pressure_diff"] += 0.05
+            self.cfg["pressure_diff"] += 1
             self.cfg["pressure_diff"] = round(self.cfg["pressure_diff"], 2)
             self.save_cfg()
 
     def minus_callback(self):
         if self.is_opened:
-            self.cfg["pressure_diff"] -= 0.05
+            self.cfg["pressure_diff"] -= 1
             self.cfg["pressure_diff"] = round(self.cfg["pressure_diff"], 2)
             self.save_cfg()
 
