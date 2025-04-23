@@ -180,8 +180,8 @@ class Main:
 
         self.pressure = self.data["pressure"]["abs_pressure"]
         self.alt = round(Func.calculate_height_from_pressure(self.default_pressure, self.pressure + self.cfg["pressure_diff"]))
-        self.speed = round(self.data["airspeed"] * 3.6) + 2000
-        self.airspeed = round(Func.count_speed_module(self.data["global_position"]["vx"], self.data["global_position"]["vy"])*3.6) + 2000
+        self.speed = round(self.data["airspeed"] * 3.6)
+        self.airspeed = round(Func.count_speed_module(self.data["global_position"]["vx"], self.data["global_position"]["vy"])*3.6)
         self.speed_vz = round(self.data["global_position"]["vz"], 2)
         self.heading = self.data["heading"]
 
@@ -291,14 +291,6 @@ class Main:
 
 
         if self.is_opened:
-            time = self.app.t_h.temp_zones[self.app.t_h.active_zone]
-            new_time = datetime.now()
-            time = time - new_time
-
-            hours = round(time.total_seconds()) // 3600
-            minutes = round(time.total_seconds()) // 60 % 60
-            str_time = f"{hours}:{"0"*(len(str(minutes))%2)}{minutes}"
-
             self.screen.blit(self.box_sprite_big, self.minus_rect)
             self.screen.blit(self.box_sprite_big, self.plus_rect)
 
