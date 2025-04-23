@@ -19,7 +19,7 @@ class App:
         self.c = 0
         self.running = True
 
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
         pygame.display.set_caption("Kayoby Customs: AviaVizual (2.8)")
 
         self.clock = pygame.time.Clock()
