@@ -3,7 +3,7 @@ from pymavlink import mavutil
 
 class Adapter:
     def __init__(self, connection_string):
-        self.master = mavutil.mavlink_connection(connection_string)
+        self.master = mavutil.mavlink_connection(connection_string, baud=921600)
         self.master.wait_heartbeat()
 
         self.data = {
@@ -87,7 +87,7 @@ class Adapter:
             }
 
 if __name__ == "__main__":
-    connection_string = "udp:0.0.0.0:14550"
+    connection_string = "udp:192.168.4.3:14550"
     adapter = Adapter(connection_string)
 
     while True:
