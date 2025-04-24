@@ -24,7 +24,7 @@ class App:
 
         self.clock = pygame.time.Clock()
 
-        self.mav = MAVLinkAdapter.Adapter('udp:0.0.0.0:14550')
+        self.mav = MAVLinkAdapter.Adapter('udp:192.168.4.2:14550')
         self.touchable = Touch.Touchable(self)
         self.t_h = TimeHead.TimeHead(self)
 
