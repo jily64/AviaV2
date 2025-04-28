@@ -54,10 +54,10 @@ while running:
         pygame.draw.rect(screen, square["color"], (square["x"], square["y"], SQUARE_SIZE, SQUARE_SIZE))
 
     fps = clock.get_fps()
-    fps_text = font.render(f"FPS: {int(fps)}", True, WHITE)
+    fps_text = font.render("FPS: " + str(int(fps)), True, WHITE)
     screen.blit(fps_text, (10, 10))
 
-    pygame.display.flip()
+    pygame.display.update()
     clock.tick(60)
 
 pygame.quit()
