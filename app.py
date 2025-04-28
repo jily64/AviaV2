@@ -19,12 +19,14 @@ class App:
         self.c = 0
         self.running = True
 
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE, 2)
+        self.sc = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE, 2)
+        self.screen = pygame.Surface((WIDTH, HEIGHT))
         pygame.display.set_caption("Kayoby Customs: AviaVizual (2.8)")
+        pygame.event.set_allowed([pygame.QUIT])
 
         self.clock = pygame.time.Clock()
 
-        self.mav = MAVLinkAdapter.Adapter('udp:192.168.4.2:14550')
+        self.mav = MAVLinkAdapter.Adapter('udp:0.0.0.0:14550')
         self.touchable = Touch.Touchable(self)
         self.t_h = TimeHead.TimeHead(self)
 
@@ -81,6 +83,7 @@ class App:
                 self.clock.tick(60)
                 #print(c)
                 self.c+=1
+                self.sc.blit(self.screen, (0, 0))
             except Exception as e:
                 print(e)
 
