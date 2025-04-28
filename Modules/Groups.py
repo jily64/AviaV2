@@ -286,7 +286,7 @@ class Main:
             self.num_text_rect = self.num_text.get_rect(center=(350, 75))
             self.screen.blit(self.num_text, self.num_text_rect)
 
-        text = self.font_middle.render(str(self.time) + " (UTC)", True, (255, 255, 255))
+        text = self.font_middle.render(str(round(self.app.clock.get_fps(), 2)) + " (FPS)", True, (255, 255, 255))
         self.screen.blit(text, text.get_rect(center=(WIDTH//2, HEIGHT-50)))
 
 

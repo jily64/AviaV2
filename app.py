@@ -19,7 +19,7 @@ class App:
         self.c = 0
         self.running = True
 
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.DOUBLEBUF)
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE, 2)
         pygame.display.set_caption("Kayoby Customs: AviaVizual (2.8)")
 
         self.clock = pygame.time.Clock()
@@ -78,7 +78,7 @@ class App:
 
                 pygame.display.flip()
 
-                self.clock.tick(15)
+                self.clock.tick(60)
                 #print(c)
                 self.c+=1
             except Exception as e:
