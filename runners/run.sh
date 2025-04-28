@@ -1,2 +1,2 @@
 . .venv/bin/activate
-python3 app.py
+python3 main.py
