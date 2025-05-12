@@ -7,7 +7,7 @@ load_dotenv()
 
 PATH = os.path.abspath('.')+'/'
 RESOURCES_PATH = PATH + "res/"
-WIDTH, HEIGHT = int(os.getenv("SCREEN_WIDTH")), int(os.getenv("SCREEN_HEIGHT"))
+WIDTH, HEIGHT = 1920, 1080
 
 
 class Main:
