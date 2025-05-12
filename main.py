@@ -37,7 +37,7 @@ class App:
         
 
         self.mav_thread = threading.Thread(target=self.update_mav)
-        self.touch_thread = threading.Thread(target=self.run_touch)
+        #self.touch_thread = threading.Thread(target=self.run_touch)
 
         self.run()
         
