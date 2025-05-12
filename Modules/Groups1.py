@@ -5,7 +5,8 @@ from datetime import datetime, timezone
 
 load_dotenv()
 
-RESOURCES_PATH = os.getenv("RESOURCES_PATH")
+PATH = os.path.abspath('.')+'/'
+RESOURCES_PATH = PATH + "res/"
 WIDTH, HEIGHT = int(os.getenv("SCREEN_WIDTH")), int(os.getenv("SCREEN_HEIGHT"))
 
 
