@@ -61,9 +61,9 @@ class Adapter:
 
         elif message.get_type() == "ATTITUDE":
             self.data["attitude"] = {
-                "roll": math.degrees(message.roll),
-                "pitch": math.degrees(message.pitch),
-                "yaw": math.degrees(message.yaw)
+                "roll": math.degrees(round(message.roll, 2)),
+                "pitch": math.degrees(round(message.pitch, 2)),
+                "yaw": math.degrees(round(message.yaw, 2))
             }
 
         elif message.get_type() == "GLOBAL_POSITION_INT":

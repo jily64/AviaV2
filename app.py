@@ -1,11 +1,11 @@
 # ЕСЛИ ВЫ ВИДИТЕ ЭТУ НАДПИСЬ, ТО ЗАКАЗЧИК НЕ ОПЛАТИЛ ЗАКАЗ
 # МОЙ ТЕЛЕГРАММ @oily_oaff
 
-import pygame, os, threading, sys
+import pygame, os, threading, sys, time, asyncio
 from dotenv import load_dotenv
-from Modules import MAVLinkAdapter, Groups, Touch, TimeHead, Keyboards
+from Modules import Groups1, MAVLinkAdapter, Touch, TimeHead, Keyboards
 from pynput import mouse
-
+from multiprocessing import Process
 
 load_dotenv()
 
@@ -19,7 +19,7 @@ class App:
         self.c = 0
         self.running = True
 
-        self.sc = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE, 2)
+        self.sc = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.SCALED, 2)
         self.screen = pygame.Surface((WIDTH, HEIGHT))
         pygame.display.set_caption("Kayoby Customs: AviaVizual (2.8)")
         pygame.event.set_allowed([pygame.QUIT])
@@ -35,10 +35,9 @@ class App:
         self.c_group = "main"
 
         self.groups = {
-            "main": Groups.Main(self),
-            "head_menu": Groups.HeadingPlanner(self),
-            "num_keyboard": Keyboards.NumKeyBoard(self)
+            "main": Groups1.Main(self)
         }
+        
 
         self.mav_thread = threading.Thread(target=self.update_mav)
         self.touch_thread = threading.Thread(target=self.run_touch)
@@ -56,8 +55,12 @@ class App:
         #self.touch_thread.join()
 
         print(3)
-        
+        while self.data["heading"] == None:
+            self.mav.update()
+            self.data = self.mav.data
+
         while self.running:
+            #self.mav.update()
             if self.c >= 1200:
                 self.running = False
                 print("BBNO$", self.c)
@@ -69,8 +72,6 @@ class App:
                     self.running = False
 
             try:
-                
-                self.mav.update()
                 self.groups[self.c_group].update()
 
                 self.screen.fill((0, 0, 0))
@@ -96,7 +97,8 @@ class App:
     def update_mav(self):
         c = 0
         while self.running:
-            self.mav.update()
+            for i in range(30):
+                self.mav.update()
             self.data = self.mav.data
             #print(self.data)
             

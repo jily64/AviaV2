@@ -8,7 +8,6 @@ load_dotenv()
 RESOURCES_PATH = os.getenv("RESOURCES_PATH")
 WIDTH, HEIGHT = int(os.getenv("SCREEN_WIDTH")), int(os.getenv("SCREEN_HEIGHT"))
 
-
 class Main:
     def __init__(self, app):
         self.app = app
@@ -51,130 +50,63 @@ class Main:
         self.indicate_heading = [(WIDTH//2, 165), (WIDTH//2, 265), 7]
 
         # Graphics
-        self.font_big = pygame.font.Font(None, 350)
-        self.font_middle = pygame.font.Font(None, 125)
-        self.font_small = pygame.font.Font(None, 50)
-
-        self.font_middle_small = pygame.font.Font(None, 95)
-        self.font_small_middle = pygame.font.Font(None, 75)
-
-        # Arrows
-
-        self.arrow_sprite_middle = pygame.transform.flip(pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "arrow.png"), (345, 230)), True, False)
-        self.arrow_sprite_small = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "arrow.png"), (185, 100))
-
-        self.box_sprite_small = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "box.png"), (250, 150))
-        self.box_sprite_big = pygame.transform.scale(self.box_sprite_small, (750, 450))
-        
-
-        self.alt_rect = self.arrow_sprite_middle.get_rect()
-        self.alt_rect.center = (250, HEIGHT//2)
-
-        self.speed_rect = self.arrow_sprite_middle.get_rect()
-        self.speed_rect.center = (WIDTH-400, HEIGHT//2)
-
-        self.speed_rect_vz = self.arrow_sprite_small.get_rect()
-        self.speed_rect_vz.center = (WIDTH-120, HEIGHT//2)
-
-        self.heading_rect = self.box_sprite_small.get_rect()
-        self.heading_rect.center = (WIDTH//2, 75)
-
-        self.minus_rect = self.box_sprite_big.get_rect(center=(WIDTH//2, HEIGHT-250))
-        self.minus_text = self.font_big.render("-", False, (255, 255, 255))
-
-        self.plus_rect = self.box_sprite_big.get_rect(center=(WIDTH//2, 250))
-        self.plus_text = self.font_big.render("+", False, (255, 255, 255))
-
-        self.app.touchable.add_rect("plus-main", self.plus_rect, "main", self.plus_callback)
-        self.app.touchable.add_rect("minus-main", self.minus_rect, "main", self.minus_callback)
-
-        
-
-        # Touchable
-        self.to_page_button = pygame.transform.scale(self.box_sprite_small, (400, 300))
-        self.to_page_text = self.font_middle.render("Путь", False, (255, 255, 255))
-        self.to_page_rect = self.to_page_button.get_rect(center=(200, HEIGHT-150))
-        self.to_page_text_rect = self.to_page_text.get_rect(center=(200, HEIGHT-150))
-
-        self.scale_button = pygame.transform.scale(self.box_sprite_small, (500, 300))
-        self.scale_text = self.font_middle.render("Давл.", False, (255, 255, 255))
-        self.scale_rect = self.scale_button.get_rect(center=(WIDTH-250, HEIGHT-150))
-        self.scale_text_rect = self.scale_text.get_rect(center=(WIDTH-250, HEIGHT-150))
-
-        self.wind_button = pygame.transform.scale(self.box_sprite_small, (200, 150))
-        self.wind_text = self.font_small.render("Ветер", False, (255, 255, 255))
-        self.wind_rect = self.wind_button.get_rect(center=(502, HEIGHT-75))
-        self.wind_text_rect = self.wind_text.get_rect(center=(502, HEIGHT-75))
-
-        self.num_button = pygame.transform.scale(self.box_sprite_small, (700, 150))
-        self.num_text = self.font_middle.render("N0 000 0:0", False, (255, 255, 255))
-        self.num_rect = self.num_button.get_rect(center=(350, 75))
-        self.num_text_rect = self.num_text.get_rect(center=(350, 75))
-
-        self.app.touchable.add_rect("page-main", self.to_page_rect, "main", self.to_page_callback)
-        self.app.touchable.add_rect("scale-main", self.scale_rect, "main", self.scale_callback)
-        self.app.touchable.add_rect("wind-main", self.wind_rect, "main", self.wind_dir_callback)
-
+        self.init_fonts()
+        self.init_sprites()
+        self.init_touchable()
 
         # Time 
         self.time = datetime.now(timezone.utc).strftime("%H:%M:%S")
 
-        # Horizon Setup
-        self.horizon_sprite = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "Background.png"), (WIDTH*2, HEIGHT*2))
-        self.horizon_rect = self.horizon_sprite.get_rect()
-        self.horizon_rect.center = (WIDTH//2, HEIGHT//2)
+    def init_fonts(self):
+        self.font_big = pygame.font.Font(None, 350)
+        self.font_middle = pygame.font.Font(None, 125)
+        self.font_small = pygame.font.Font(None, 50)
+        self.font_middle_small = pygame.font.Font(None, 95)
+        self.font_small_middle = pygame.font.Font(None, 75)
 
-        self.horizon_sprite = pygame.transform.rotate(self.horizon_sprite, 0)
-        self.horizon_rect = self.horizon_sprite.get_rect(center=self.horizon_rect.center)
+    def init_sprites(self):
+        def load_image(name, size=None, flip=False):
+            image = pygame.image.load(RESOURCES_PATH + name).convert_alpha()
+            if size:
+                image = pygame.transform.scale(image, size)
+            if flip:
+                image = pygame.transform.flip(image, True, False)
+            return image
 
-        self.horizon_sprite_current = self.horizon_sprite
+        self.arrow_sprite_middle = load_image("arrow.png", (345, 230), flip=True)
+        self.arrow_sprite_small = load_image("arrow.png", (185, 100))
 
-        # Compass
-        self.compass_sprite = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "Compass.png"), (WIDTH//2.5, WIDTH//2.5))
-        self.compass_rect = self.compass_sprite.get_rect()
-        self.compass_rect.center = (WIDTH//2, HEIGHT//2)
+        self.box_sprite_small = load_image("box.png", (250, 150))
+        self.box_sprite_big = pygame.transform.scale(self.box_sprite_small, (750, 450))
 
-        self.compass_sprite = pygame.transform.rotate(self.compass_sprite, 0)
-        self.compass_rect = self.compass_sprite.get_rect(center=self.compass_rect.center)
+        self.horizon_sprite = load_image("Background.png", (WIDTH*2, HEIGHT*2))
+        self.compass_sprite = load_image("Compass.png", (WIDTH//2.5, WIDTH//2.5))
 
-        self.compass_sprite_current = self.compass_sprite
+        self.red_sprite = load_image("pointer_red.png", (WIDTH//2.5, WIDTH//2.5))
+        self.green_sprite = load_image("pointer_green.png", (WIDTH//2.5, WIDTH//2.5))
+        self.yellow_sprite = load_image("pointer_yellow.png", (WIDTH//2.5, WIDTH//2.5))
 
-        # Wings
-        self.left_wing = [(WIDTH//4-150, HEIGHT//2), (WIDTH//4+125, HEIGHT//2), 10]
-        self.right_wing = [(WIDTH-WIDTH//4-150, HEIGHT//2), (WIDTH-WIDTH//4+125, HEIGHT//2), 10]
+    def init_touchable(self):
+        self.app.touchable.add_rect("plus-main", self.create_rect(self.box_sprite_big, (WIDTH//2, 250)), "main", self.plus_callback)
+        self.app.touchable.add_rect("minus-main", self.create_rect(self.box_sprite_big, (WIDTH//2, HEIGHT-250)), "main", self.minus_callback)
 
-        self.left_body = [(WIDTH//2-50, HEIGHT//2-25), (WIDTH//2, HEIGHT//2), 7]
-        self.right_body = [(WIDTH//2+50, HEIGHT//2-25), (WIDTH//2, HEIGHT//2), 7]
-
-        # Pointers
-        self.red_sprite = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "pointer_red.png"), (WIDTH//2.5, WIDTH//2.5))
-        self.red_rect = self.red_sprite.get_rect(center=(WIDTH//2, HEIGHT//2))
-        self.red_sprite_current = self.red_sprite
-
-        self.green_sprite = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "pointer_green.png"), (WIDTH//2.5, WIDTH//2.5))
-        self.green_rect = self.green_sprite.get_rect(center=(WIDTH//2, HEIGHT//2))
-        self.green_sprite_current = self.green_sprite
-
-        self.yellow_sprite = pygame.transform.scale(pygame.image.load(RESOURCES_PATH + "pointer_yellow.png"), (WIDTH//2.5, WIDTH//2.5))
-        self.yellow_rect = self.yellow_sprite.get_rect(center=(WIDTH//2, HEIGHT//2))
-        self.yellow_sprite_current = self.yellow_sprite
-
-
-
+    def create_rect(self, sprite, center):
+        rect = sprite.get_rect()
+        rect.center = center
+        return rect
 
     def update(self):
-        #self.debug_c += 1
-
+        self.debug_c += 1
         self.data = self.app.mav.data
-        
-        if self.init_lat == None and self.init_lon == None:
-            if self.data["gps"]["lat"] != None and self.data["gps"]["lon"] != None:
+
+        if self.init_lat is None and self.init_lon is None:
+            if self.data["gps"]["lat"] and self.data["gps"]["lon"]:
                 self.init_lat = self.data["gps"]["lat"]
                 self.init_lon = self.data["gps"]["lon"]
         else:
             self.to_home = Func.calculate_bearing(self.init_lat, self.init_lon, self.data["gps"]["lat"], self.data["gps"]["lon"])
 
-        if self.data["pressure"]["abs_pressure"] != None and not self.is_pr_updated:
+        if self.data["pressure"]["abs_pressure"] and not self.is_pr_updated:
             self.default_pressure = self.data["pressure"]["abs_pressure"]
             self.is_pr_updated = True
 
@@ -183,23 +115,20 @@ class Main:
         self.speed = round(self.data["airspeed"] * 3.6)
         self.airspeed = round(Func.count_speed_module(self.data["global_position"]["vx"], self.data["global_position"]["vy"])*3.6)
         self.speed_vz = round(self.data["global_position"]["vz"], 2)
-        self.heading = self.data["heading"]
+        self.heading = self.data["heading"] + self.debug_c % 360
 
         delta_speed_vz = round(self.speed_vz, -1)
-        self.speed_vz_comp = []
-        for i in range(5):
-            self.speed_vz_comp.append(delta_speed_vz + 10*(i-2))
-        
+        self.speed_vz_comp = [delta_speed_vz + 10*(i-2) for i in range(5)]
         self.speed_pad_delt_vz = round(self.speed_vz - delta_speed_vz)*10
         self.speed_vz_comp.reverse()
 
         self.time = datetime.now(timezone.utc).strftime("%H:%M:%S")
 
-        self.scale_text = self.font_middle.render(str(round(self.pressure + self.cfg["pressure_diff"])) + " ГПа", False, (255, 255, 255))
+        self.scale_text = self.font_middle.render(f"{round(self.pressure + self.cfg['pressure_diff'])} ГПа", False, (255, 255, 255))
         self.scale_text_rect = self.scale_text.get_rect(center=(WIDTH-250, HEIGHT-150))
 
-        delta_vert = round(self.data["attitude"]["pitch"]+self.cfg["pitch_diff"], 2)
-        self.horizon_sprite_current = pygame.transform.rotate(self.horizon_sprite, -self.data["attitude"]["roll"]+self.cfg["roll_diff"])
+        delta_vert = round(self.data["attitude"]["pitch"]+self.cfg["pitch_diff"] + self.debug_c % 360, 2)
+        self.horizon_sprite_current = pygame.transform.rotate(self.horizon_sprite, -self.data["attitude"]["roll"]+self.cfg["roll_diff"] + self.debug_c % 360)
         self.horizon_rect = self.horizon_sprite_current.get_rect(center=(self.horizon_rect.center[0], HEIGHT//2+delta_vert*12))
 
         self.compass_sprite_current = pygame.transform.rotate(self.compass_sprite, self.heading)
@@ -213,8 +142,6 @@ class Main:
 
         self.yellow_sprite_current = pygame.transform.rotate(self.yellow_sprite, self.heading-self.wind_direction)
         self.yellow_rect = self.yellow_sprite_current.get_rect(center=self.yellow_rect.center)
-
-
 
     def render(self):
         self.screen.blit(self.horizon_sprite_current, self.horizon_rect)
@@ -233,11 +160,10 @@ class Main:
         pygame.draw.line(self.screen, (235, 0, 0), self.left_body[0], self.left_body[1], self.left_body[2])
         pygame.draw.line(self.screen, (235, 0, 0), self.right_body[0], self.right_body[1], self.right_body[2])
 
-        for i in range(len(self.speed_vz_comp)):
-            if self.speed_vz_comp[i] == None:
+        for i, comp in enumerate(self.speed_vz_comp):
+            if comp is None:
                 continue
-
-            text = self.font_small.render(str(abs(self.speed_vz_comp[i])), False, (255, 255, 255))
+            text = self.font_small.render(str(abs(comp)), False, (255, 255, 255))
             self.screen.blit(text, text.get_rect(center=(WIDTH-100, self.speed_pad_delt_vz+(i-2)*100+HEIGHT//2)))
 
         self.screen.blit(self.arrow_sprite_middle, self.alt_rect)
@@ -262,7 +188,7 @@ class Main:
 
         text = self.font_middle.render(str(self.heading)+"°", False, (255, 255, 255))
         self.screen.blit(text, text.get_rect(center=(WIDTH//2, 75)))
-            
+
         self.screen.blit(self.to_page_button, self.to_page_rect)
         self.screen.blit(self.to_page_text, self.to_page_text_rect)
 
@@ -289,16 +215,12 @@ class Main:
         text = self.font_middle.render(str(round(self.app.clock.get_fps(), 2)) + " (FPS)", True, (255, 255, 255))
         self.screen.blit(text, text.get_rect(center=(WIDTH//2, HEIGHT-50)))
 
-
         if self.is_opened:
             self.screen.blit(self.box_sprite_big, self.minus_rect)
             self.screen.blit(self.box_sprite_big, self.plus_rect)
 
             self.screen.blit(self.plus_text, self.plus_text.get_rect(center=self.plus_rect.center))
             self.screen.blit(self.minus_text, self.minus_text.get_rect(center=self.minus_rect.center))
-
-        # text = self.font_middle.render(str(round(self.data["attitude"]["pitch"])), False, (255, 255, 255))
-        # self.screen.blit(text, text.get_rect(center=(WIDTH//2, HEIGHT//2)))        
 
     def load_cfg(self):
         with open("cfg.json", "r", encoding="UTF-8") as f:
