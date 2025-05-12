@@ -4,7 +4,6 @@
 import pygame, os, threading, sys, time, asyncio
 from dotenv import load_dotenv
 from Modules import Groups1, MAVLinkAdapter, Touch, TimeHead, Keyboards
-from pynput import mouse
 from multiprocessing import Process
 
 load_dotenv()
@@ -51,7 +50,7 @@ class App:
         #self.mav_thread.join()
         print(2)
 
-        self.touch_thread.start()
+        #self.touch_thread.start()
         #self.touch_thread.join()
 
         print(3)
@@ -107,10 +106,10 @@ class App:
         self.mav.update()
         self.data = self.mav.data
 
-    def run_touch(self):
+        """    def run_touch(self):
         with mouse.Listener(on_click=self.touchable.update) as listener:
             listener.join()
-
+        """
     def ping(self):
         pass
 
