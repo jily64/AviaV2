@@ -3,8 +3,6 @@ from dotenv import load_dotenv
 from Modules import MAVLinkAdapter, Func, Touch, classes
 from datetime import datetime, timezone
 
-load_dotenv()
-
 PATH = os.path.abspath('.')+'/'
 RESOURCES_PATH = PATH + "resources/"
 WIDTH, HEIGHT = 1920, 1080

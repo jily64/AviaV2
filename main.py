@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 from Modules import Groups1, MAVLinkAdapter, Touch, TimeHead, Keyboards
 from multiprocessing import Process
 
-load_dotenv()
-
 pygame.init()
 
 WIDTH, HEIGHT = 1920, 1080
@@ -18,7 +16,7 @@ class App:
         self.c = 0
         self.running = True
 
-        self.sc = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.SCALED, 2)
+        self.sc = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.SCALED)
         self.screen = pygame.Surface((WIDTH, HEIGHT))
         pygame.display.set_caption("Kayoby Customs: AviaVizual (2.8)")
         pygame.event.set_allowed([pygame.QUIT])
