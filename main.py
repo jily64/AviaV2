@@ -94,9 +94,9 @@ class App:
     def update_mav(self):
         c = 0
         while self.running:
-            for i in range(30):
+            for i in range(120):
                 self.mav.update()
-            self.data = self.mav.data
+                self.data = self.mav.data
             #print(self.data)
             
 

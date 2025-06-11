@@ -159,12 +159,27 @@ class Main:
         self.yellow_sprite_current = self.yellow_sprite
 
 
+        self.old_roll = 0
+        self.old_pitch = 0
+        self.old_heading = 0
+
+
+        self.old_alt = 0
+        self.alt_text = self.font_middle.render(str(0)+ "", False, (255, 255, 255))
+        self.old_speed = 0
+        self.speed_text = self.font_middle_small.render("AS "+str(0), False, (255, 255, 255))
+        self.airspeed_text = self.font_small_middle.render("GS " + str(0), False, (255, 255, 255))
+        self.old_airspeed = 0
+        self.speed_vz_text = self.font_small.render(str(0), False, (255, 255, 255))
+        self.old_speed_vz = 0
+        self.heading_text = self.font_middle.render(str(0)+"°", False, (255, 255, 255))
 
 
     def update(self):
-        self.debug_c += 1
+        #self.debug_c += 1
 
         self.data = self.app.mav.data
+        self.app.mav.update()
         
         if self.init_lat == None and self.init_lon == None:
             if self.data["gps"]["lat"] != None and self.data["gps"]["lon"] != None:
@@ -198,20 +213,24 @@ class Main:
         self.scale_text_rect = self.scale_text.get_rect(center=(WIDTH-250, HEIGHT-150))
 
         delta_vert = round(self.data["attitude"]["pitch"]+self.cfg["pitch_diff"], 2)
-        self.horizon_sprite_current = pygame.transform.rotate(self.horizon_sprite, -self.data["attitude"]["roll"]+self.cfg["roll_diff"])
-        self.horizon_rect = self.horizon_sprite_current.get_rect(center=(self.horizon_rect.center[0], HEIGHT//2+delta_vert*12))
+        if self.data["attitude"]["pitch"] != self.old_pitch and self.data["attitude"]["roll"] != self.old_roll:
+            self.horizon_sprite_current = pygame.transform.rotate(self.horizon_sprite, -self.data["attitude"]["roll"]+self.cfg["roll_diff"])
+            self.horizon_rect = self.horizon_sprite_current.get_rect(center=(self.horizon_rect.center[0], HEIGHT//2+delta_vert*12))
+        self.old_roll = self.data["attitude"]["roll"]
+        self.old_pitch = self.data["attitude"]["pitch"]
 
-        self.compass_sprite_current = pygame.transform.rotate(self.compass_sprite, self.heading)
-        self.compass_rect = self.compass_sprite_current.get_rect(center=self.compass_rect.center)
+        if self.heading != self.old_heading:
+            self.compass_sprite_current = pygame.transform.rotate(self.compass_sprite, self.heading)
+            self.compass_rect = self.compass_sprite_current.get_rect(center=self.compass_rect.center)
 
-        self.red_sprite_current = pygame.transform.rotate(self.red_sprite, (self.heading-self.app.t_h.headings[self.app.t_h.active_zone]+90)%360)
-        self.red_rect = self.red_sprite_current.get_rect(center=self.red_rect.center)
+            self.red_sprite_current = pygame.transform.rotate(self.red_sprite, (self.heading-self.app.t_h.headings[self.app.t_h.active_zone]+90)%360)
+            self.red_rect = self.red_sprite_current.get_rect(center=self.red_rect.center)
 
-        self.green_sprite_current = pygame.transform.rotate(self.green_sprite, self.heading-self.to_home)
-        self.green_rect = self.green_sprite_current.get_rect(center=self.green_rect.center)
+            self.green_sprite_current = pygame.transform.rotate(self.green_sprite, self.heading-self.to_home)
+            self.green_rect = self.green_sprite_current.get_rect(center=self.green_rect.center)
 
-        self.yellow_sprite_current = pygame.transform.rotate(self.yellow_sprite, self.heading-self.wind_direction)
-        self.yellow_rect = self.yellow_sprite_current.get_rect(center=self.yellow_rect.center)
+            self.yellow_sprite_current = pygame.transform.rotate(self.yellow_sprite, self.heading-self.wind_direction)
+            self.yellow_rect = self.yellow_sprite_current.get_rect(center=self.yellow_rect.center)
 
 
 
@@ -232,12 +251,12 @@ class Main:
         pygame.draw.line(self.screen, (235, 0, 0), self.left_body[0], self.left_body[1], self.left_body[2])
         pygame.draw.line(self.screen, (235, 0, 0), self.right_body[0], self.right_body[1], self.right_body[2])
 
-        for i in range(len(self.speed_vz_comp)):
+        """for i in range(len(self.speed_vz_comp)):
             if self.speed_vz_comp[i] == None:
                 continue
 
             text = self.font_small.render(str(abs(self.speed_vz_comp[i])), False, (255, 255, 255))
-            self.screen.blit(text, text.get_rect(center=(WIDTH-100, self.speed_pad_delt_vz+(i-2)*100+HEIGHT//2)))
+            self.screen.blit(text, text.get_rect(center=(WIDTH-100, self.speed_pad_delt_vz+(i-2)*100+HEIGHT//2)))"""
 
         self.screen.blit(self.arrow_sprite_middle, self.alt_rect)
         self.screen.blit(pygame.transform.flip(self.arrow_sprite_middle, True, False), self.speed_rect)
@@ -245,23 +264,43 @@ class Main:
 
         self.screen.blit(self.box_sprite_small, self.heading_rect)
 
-        text = self.font_middle.render(str(self.alt)+ "", False, (255, 255, 255))
-        self.screen.blit(text, text.get_rect(center=(WIDTH-375, HEIGHT//2)))
+        if self.old_alt != self.alt:
+            self.alt_text = self.font_middle.render(str(self.alt)+ "", False, (255, 255, 255))
+            self.screen.blit(self.alt_text, self.alt_text.get_rect(center=(WIDTH-375, HEIGHT//2)))
+        else:
+            self.screen.blit(self.alt_text, self.alt_text.get_rect(center=(WIDTH-375, HEIGHT//2)))
+        self.old_alt = self.alt
 
-        text = self.font_middle_small.render("AS "+str(self.speed), False, (255, 255, 255))
-        self.screen.blit(text, text.get_rect(center=(225, HEIGHT//2-45)))
+        if self.old_speed != self.speed:
+            self.speed_text = self.font_middle_small.render("AS "+str(self.speed), False, (255, 255, 255))
+            self.screen.blit(self.speed_text, self.speed_text.get_rect(center=(225, HEIGHT//2-45)))
+        else:
+            self.screen.blit(self.speed_text, self.speed_text.get_rect(center=(225, HEIGHT//2-45)))
+        self.old_speed = self.speed
 
         pygame.draw.line(self.screen, (255, 255, 255), (150, HEIGHT//2), (300, HEIGHT//2), 5)
 
-        text = self.font_small_middle.render("GS " + str(self.airspeed), False, (255, 255, 255))
-        self.screen.blit(text, text.get_rect(center=(225, HEIGHT//2+45)))
+        if self.old_airspeed != self.airspeed:
+            self.airspeed_text = self.font_small_middle.render("GS " + str(self.airspeed), False, (255, 255, 255))
+            self.screen.blit(self.airspeed_text, self.airspeed_text.get_rect(center=(225, HEIGHT//2+45)))
+        else: 
+            self.screen.blit(self.airspeed_text, self.airspeed_text.get_rect(center=(225, HEIGHT//2+45)))
+        self.old_airspeed = self.airspeed
 
-        text = self.font_small.render(str(self.speed_vz), False, (255, 255, 255))
-        self.screen.blit(text, text.get_rect(center=(WIDTH-100, HEIGHT//2)))
+        if self.old_speed_vz != self.speed_vz:
+            self.speed_vz_text = self.font_small.render(str(self.speed_vz), False, (255, 255, 255))
+            self.screen.blit(self.speed_vz_text, self.speed_vz_text.get_rect(center=(WIDTH-100, HEIGHT//2)))    
+        else:
+            self.screen.blit(self.speed_vz_text, self.speed_vz_text.get_rect(center=(WIDTH-100, HEIGHT//2)))    
+        self.old_speed_vz = self.speed_vz
 
-        text = self.font_middle.render(str(self.heading)+"°", False, (255, 255, 255))
-        self.screen.blit(text, text.get_rect(center=(WIDTH//2, 75)))
-            
+        if self.old_heading != self.heading:
+            self.heading_text = self.font_middle.render(str(self.heading)+"°", False, (255, 255, 255))
+            self.screen.blit(self.heading_text, self.heading_text.get_rect(center=(WIDTH//2, 75)))
+        else:
+            self.screen.blit(self.heading_text, self.heading_text.get_rect(center=(WIDTH//2, 75)))
+        self.old_heading = self.heading
+        
         self.screen.blit(self.to_page_button, self.to_page_rect)
         self.screen.blit(self.to_page_text, self.to_page_text_rect)
 
